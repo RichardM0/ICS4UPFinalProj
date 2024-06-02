@@ -1,0 +1,197 @@
+import java.awt.event.*;
+import java.awt.Graphics;
+import java.awt.Color;
+import javax.swing.JPanel;
+import javax.swing.Timer;
+import java.util.ArrayList;
+import java.util.Random;
+public class GravityPanel extends JPanel implements ActionListener
+{
+   /*
+    * Instance and Static variables for BallPanel class
+    * Includes timer, speed variables, motion variables, and arraylist for balls, 
+    */
+   private int delay = 10;
+   private static final double G = 6.67430e-11;
+   protected Timer timer;
+   private ArrayList<Ball> balls = new ArrayList<Ball>();
+   private ArrayList<GravityPointer> gps = new ArrayList<GravityPointer>();
+   private double rotateSpeed = Math.PI / 2048;
+   private boolean isStopped = true;
+   public static String speed = "low";
+   private String movement = "linear";
+   
+   /*
+    * constructor for objects of BallPanel
+    * create an "original" ball
+    * Start a timer to keep refreshing screen
+    */
+   public GravityPanel()
+   {
+      balls.add(new Ball(200, 200, 15,  System.currentTimeMillis()));
+      timer = new Timer(delay, this);
+      timer.start();
+   }
+   /*
+    * actionPerformed method
+    * repaints ball to screen constantly
+    */
+   public void actionPerformed(ActionEvent e)
+   {
+       repaint();
+   }
+   /*
+    * paintComponent method
+    * Paints every ball to the screen
+    * Checks every ball's positions and boundaries to change dX, dY
+    * Move the ball if stop button was not pressed
+    */
+   public void paintComponent( Graphics g )
+   {
+       super.paintComponent( g );
+       attraction();
+       for(GravityPointer gp : gps){
+           g.setColor(Color.black);
+           System.out.println("Loop: " + gp.getX() + ", " + gp.getY());
+           g.fillOval((int)(gp.getX()-gp.radius), (int)(gp.getY()-gp.radius), 2*gp.radius, 2*gp.radius);
+       }
+       for(Ball b : balls){
+           g.setColor(b.getColor());
+           if(b.getX()>this.getWidth() - b.getRadius() || b.getX()<0 + b.getRadius()){
+               b.setX(b.getX()>this.getWidth() - b.getRadius() ? this.getWidth() - b.getRadius() : 0+b.getRadius());
+               b.setDx(-b.getDx());
+           }
+           if(b.getY()>this.getHeight() - b.getRadius() || b.getY()<0 + b.getRadius()){
+               b.setDy(-b.getDy());
+           }
+           if(!isStopped){
+                b.move();
+           }
+           g.fillOval((int)(b.getX() - b.getRadius()), (int)(b.getY() - b.getRadius()), b.getRadius()*2, b.getRadius()*2);
+       }
+   }
+   public void reset(){
+       for(Ball b : balls){
+           b.setDx(3.0);
+           b.setDy(3.0);
+       }
+   }
+   public void deleteGP(int mX, int mY){
+       for(GravityPointer gp : gps){
+           System.out.println(mX + ", " + (gp.getX()));
+           System.out.println(mY + ", " + (gp.getY()));
+           if((mX>gp.getX()-gp.radius && mX<gp.getX()+gp.radius) && (mY>gp.getY()-gp.radius && mY<gp.getY()+gp.radius)){
+               System.out.println("Within bounds");
+           }
+       }
+       System.out.println("ran");
+   }
+   public void attraction(){
+       for(Ball b : balls){
+           for(GravityPointer gp : gps){
+               double dx = gp.getX()-b.getX();
+               double dy = gp.getY()-b.getY();;
+               double distance = Math.sqrt(dx*dx + dy*dy);
+               double fx = 0;
+               double fy = 0;
+
+               if (distance > b.getRadius() + gp.radius) { // Avoid division by zero
+                   double force = (G * b.getMass() * gp.mass) / (distance * distance);
+                   fx += force * (dx / distance);
+                   fy += force * (dy / distance);
+               }
+               b.updateVel(fx, fy);
+           }
+       }
+   }
+   /*
+    * setSpeed method
+    * Adjusts speed to low, medium, or high
+    * Scales dX, dY, circular/sinusoidal curving speed z
+    * Keeps track of current speed selected using String s
+    */
+   public void setSpeed(double x, double y, int z, String s){
+       speed = s;
+       for(Ball b : balls){
+           if(b.getDx()<0){
+               b.setDx(-x);
+           }
+           else if(b.getDx()>0){
+               b.setDx(x);
+           }
+           if(b.getDy()<0){
+               b.setDy(-y);
+           }
+           else if(b.getDy()>0){
+               b.setDy(y);
+           }
+           rotateSpeed = Math.PI/z;  
+       }
+   }
+   /*
+    * setStopped method and setStart method
+    * setStopped stops motion
+    * setStart starts motion
+    */
+   public void setStopped(){
+       isStopped = true;
+   }
+   public void setStart(){
+       isStopped = false;
+   }
+   public void addGP(int x, int y){
+       GravityPointer gp = new GravityPointer(x,y);
+       gps.add(gp);
+       System.out.println(gp.getX() + ", " + gp.getY());
+   }
+   /*
+    * addBall method
+    * Adds ball to the BallPanel
+    * Uses java.util.Random to randomize position and Color
+    * Sets speed of ball according to the selected speed
+    * add ball to arrayList balls
+    */
+   public void addBall(){
+        Random rand = new Random();
+        int width = this.getWidth();
+        int height = this.getHeight();
+        int x = 30 + rand.nextInt(30 + 3*width/4);
+        int y = 30 + rand.nextInt(30 + 3*height/4);
+        Ball b = new Ball(x, y, 15, System.currentTimeMillis());
+        if(speed.equals("low")){
+            b.setDx(3.0);
+        }
+        else if(speed.equals("medium")){
+            b.setDx(6.0);
+        }
+        else if(speed.equals("high")){
+            b.setDx(9.0);
+        }
+        float red = rand.nextFloat();
+        float green = rand.nextFloat();
+        float blue = rand.nextFloat();
+        b.setColor(new Color(red,green,blue));
+        balls.add(b);
+   }
+   /*
+    * setColor method
+    * Changes color of every ball
+    * Go through every ball in balls arrayList to change color
+    */
+   public void setColor(Color c){
+        for(Ball b : balls){
+            b.setColor(c);
+        }
+   }
+   /*
+    * setMovement and getMovement method
+    * setMovement method sets current motion to selected motion
+    * getMovement method gets current motion
+    */
+   public void setMovement(String path){
+        movement = path;
+   }
+   public String getMovement(){
+        return movement;
+   }
+}
