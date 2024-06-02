@@ -1,0 +1,217 @@
+
+import java.awt.event.*;
+import java.awt.Color;
+import java.awt.BorderLayout;
+import javax.swing.JPanel;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JButton;
+import javax.swing.ButtonGroup;
+import javax.swing.SwingUtilities;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+public class GravityFrame extends JFrame implements ActionListener, ItemListener
+{
+   /*
+    * Static variables for class BallFrame
+    * Each individual Java Swing element
+    */
+   public static JFrame frame;
+   private static GravityPanel bp;
+   private static JMenuBar menuBar;
+   private static JMenu speedMenu, gravMenu, pathMenu;
+   private static JRadioButtonMenuItem low, medium, high, glow, gmedium, ghigh, linear, circular, parabolic, sine, ellipse;
+   private static JPanel subPanel; 
+   private static JButton start, stop, addBalls;
+   private static ButtonGroup speedGroup, gravGroup, pathGroup;
+   /*
+   * constructor for objects of BallFrame
+   * Creates entire window
+   * Create menu with speed, gravity, and motion options
+   * Add the BallPanel with the actual moving balls
+   * Have a subpanel with buttons Start Stop and Add Balls to change balls
+   * Add frame to the window
+   */
+   public GravityFrame()
+   {
+        frame = new JFrame( "Bouncing Ball" );
+        frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+        
+        bp = new GravityPanel(); 
+        menuBar = new JMenuBar();
+
+        speedMenu = new JMenu("Speed");  
+        gravMenu = new JMenu("Gravity");
+        pathMenu = new JMenu("Motion");
+
+        speedGroup = new ButtonGroup();
+        gravGroup = new ButtonGroup();
+        pathGroup = new ButtonGroup();
+
+        speedMenu.addSeparator();
+        gravMenu.addSeparator();
+        pathMenu.addSeparator();
+        
+        low = new JRadioButtonMenuItem("Low Speed");
+        medium = new JRadioButtonMenuItem("Medium Speed");
+        high = new JRadioButtonMenuItem("High Speed");
+
+        glow = new JRadioButtonMenuItem("Low Mass");
+        gmedium = new JRadioButtonMenuItem("Medium Mass");
+        ghigh = new JRadioButtonMenuItem("High Mass");
+
+        linear = new JRadioButtonMenuItem("Linear");
+        circular = new JRadioButtonMenuItem("Circular");
+        parabolic = new JRadioButtonMenuItem("Parabolic");
+        sine = new JRadioButtonMenuItem("Sinusoidal");
+        ellipse = new JRadioButtonMenuItem("Ellipse");
+  
+        low.addItemListener(this);
+        medium.addItemListener(this);
+        high.addItemListener(this);
+        glow.addItemListener(this);
+        gmedium.addItemListener(this);
+        ghigh.addItemListener(this);
+        linear.addItemListener(this);
+        circular.addItemListener(this);
+        parabolic.addItemListener(this);
+        sine.addItemListener(this);
+        ellipse.addItemListener(this);
+
+        speedGroup.add(low);
+        speedGroup.add(medium);
+        speedGroup.add(high);
+        gravGroup.add(glow);
+        gravGroup.add(gmedium);
+        gravGroup.add(ghigh);
+        pathGroup.add(linear);
+        pathGroup.add(circular);
+        pathGroup.add(parabolic);
+        pathGroup.add(sine);
+        pathGroup.add(ellipse);
+
+        speedMenu.add(low);
+        speedMenu.add(medium);
+        speedMenu.add(high);
+        gravMenu.add(glow);
+        gravMenu.add(gmedium);
+        gravMenu.add(ghigh);
+        pathMenu.add(linear);
+        pathMenu.add(circular);
+        pathMenu.add(parabolic);
+        pathMenu.add(sine);
+        pathMenu.add(ellipse);
+
+        menuBar.add(speedMenu);
+        menuBar.add(gravMenu);
+        menuBar.add(pathMenu);
+ 
+        subPanel = new JPanel();
+        subPanel.setBackground(Color.gray);
+
+        start = new JButton("Start");
+        stop = new JButton("Stop");
+        addBalls = new JButton("Add Balls");
+ 
+        stop.addActionListener(this);
+        start.addActionListener(this);
+        addBalls.addActionListener(this);
+
+        subPanel.add(start);
+        subPanel.add(stop);
+        subPanel.add(addBalls);
+        
+        frame.setJMenuBar(menuBar);
+        frame.addMouseListener(new MouseAdapter() { 
+          public void mousePressed(MouseEvent me) { 
+            if(SwingUtilities.isLeftMouseButton(me)){
+                bp.addGP(me.getX(), me.getY());
+                System.out.println("Mouse: " + me.getX() + ", " + me.getY());
+            }
+            if(SwingUtilities.isRightMouseButton(me)){
+                bp.deleteGP(me.getX(), me.getY());
+            }
+          } 
+        }); 
+
+        frame.getContentPane().add(subPanel, BorderLayout.SOUTH);
+
+        frame.add( bp );
+        frame.setSize( 600, 600 ); 
+        frame.setVisible( true );
+   }
+   /*
+    * main Method
+    * Allows the user to access and view the GUI
+    */
+   public static void main( String args[] )
+   {
+        GravityFrame run = new GravityFrame();
+   }
+   /*
+    * actionPerformed method
+    * Listens for which button was pressed:
+    * Stop button stops the ballPanel
+    * Start resumes the ballPanel action
+    * addBalls button adds ball to the ballPanel
+    */
+   public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == stop){
+            bp.setStopped();
+        }
+        else if (e.getSource() == start){
+            bp.setStart();
+        }
+        else if(e.getSource() == addBalls){
+            bp.addBall();
+        }
+   }
+   /*
+    * itemStateChanged method
+    * Checks which menu item was last changed or chosen
+    * Changes speed to low, medium, or high
+    * Changes grav to blue, red, or yellow
+    * Changes motion to linear, circular, parabolic, sinusoidal, or ellipse.
+    */
+   public void itemStateChanged(ItemEvent e){
+        if (e.getSource() == low){
+            bp.setSpeed(3.0, 0, 2048,  "low");
+        }
+        else if (e.getSource() == medium){
+            bp.setSpeed(6.0, 0, 1024, "medium");
+        }
+        else if (e.getSource() == high){
+            bp.setSpeed(9.0, 0, 512, "high");
+        }
+        else if (e.getSource() == glow){
+            GravityPointer.setMass(1.3e13);
+            bp.reset();
+        }
+        else if (e.getSource() == gmedium){
+            GravityPointer.setMass(1.3e14);
+            bp.reset();
+        }
+        else if (e.getSource() == ghigh){
+            GravityPointer.setMass(1.8e14);
+            bp.reset();
+        }
+        else if (e.getSource() == linear){
+            bp.setMovement("linear");
+        }
+        else if (e.getSource() == circular){
+            bp.setMovement("circular");
+        }
+        else if (e.getSource() == parabolic){
+            bp.setMovement("parabolic");
+        }
+        else if (e.getSource() == sine){
+            bp.setMovement("sine");
+        }
+        else if (e.getSource() == ellipse){
+            bp.setMovement("ellipse");
+        }
+   }
+}
