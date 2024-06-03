@@ -9,8 +9,8 @@ public class GravityPointer
 {
     // instance variables - replace the example below with your own
     private double x, y;
-    public static int radius = 20;
-    public static double mass = 1.3e13;
+    private int radius = 20;
+    private static double mass = 5.3e13;
 
     /**
      * Constructor for objects of class GravityPointer
@@ -31,8 +31,17 @@ public class GravityPointer
     public void setY(double newY){
         y = newY;
     }
-    public static void setMass(double newMass){
+    public void setMass(double newMass){
         mass = newMass;
+    }
+    public double getMass(){
+        return mass;
+    }
+    public void setRadius(int r){
+        radius = r;
+    }
+    public int getRadius(){
+        return radius;
     }
     public double getX(){
         return x;
