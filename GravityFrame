@@ -129,7 +129,7 @@ public class GravityFrame extends JFrame implements ActionListener, ItemListener
           public void mousePressed(MouseEvent me) { 
             if(SwingUtilities.isLeftMouseButton(me)){
                 bp.addGP(me.getX(), me.getY());
-                System.out.println("Mouse: " + me.getX() + ", " + me.getY());
+                bp.accumulate(me.getX(), me.getY());
             }
             if(SwingUtilities.isRightMouseButton(me)){
                 bp.deleteGP(me.getX(), me.getY());
@@ -187,31 +187,16 @@ public class GravityFrame extends JFrame implements ActionListener, ItemListener
             bp.setSpeed(9.0, 0, 512, "high");
         }
         else if (e.getSource() == glow){
-            GravityPointer.setMass(1.3e13);
+            bp.setMass(5.3e13);
             bp.reset();
         }
         else if (e.getSource() == gmedium){
-            GravityPointer.setMass(1.3e14);
+            bp.setMass(1.3e14);
             bp.reset();
         }
         else if (e.getSource() == ghigh){
-            GravityPointer.setMass(1.8e14);
+            bp.setMass(1.8e14);
             bp.reset();
-        }
-        else if (e.getSource() == linear){
-            bp.setMovement("linear");
-        }
-        else if (e.getSource() == circular){
-            bp.setMovement("circular");
-        }
-        else if (e.getSource() == parabolic){
-            bp.setMovement("parabolic");
-        }
-        else if (e.getSource() == sine){
-            bp.setMovement("sine");
-        }
-        else if (e.getSource() == ellipse){
-            bp.setMovement("ellipse");
         }
    }
 }
