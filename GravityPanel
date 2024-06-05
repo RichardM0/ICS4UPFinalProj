@@ -28,7 +28,7 @@ public class GravityPanel extends JPanel implements ActionListener
     */
    public GravityPanel()
    {
-      balls.add(new Ball(200, 200, 15,  System.currentTimeMillis()));
+      balls.add(new Ball(200, 200, 10,  System.currentTimeMillis()));
       timer = new Timer(delay, this);
       timer.start();
    }
@@ -50,17 +50,19 @@ public class GravityPanel extends JPanel implements ActionListener
    {
        super.paintComponent( g );
        attraction();
+       gpAttraction();
        for(GravityPointer gp : gps){
            g.setColor(Color.black);
            g.fillOval((int)(gp.getX()-gp.getRadius()), (int)(gp.getY()-3*gp.getRadius()), 2*gp.getRadius(), 2*gp.getRadius());
        }
        for(Ball b : balls){
            g.setColor(b.getColor());
-           if(b.getX()>this.getWidth() - b.getRadius() || b.getX()<0 + b.getRadius()){
-               b.setX(b.getX()>this.getWidth() - b.getRadius() ? this.getWidth() - b.getRadius() : 0+b.getRadius());
+           if(b.getX()>this.getWidth() - b.getRadius() || b.getX()<b.getRadius()){
+               b.setX(b.getX()>this.getWidth() - b.getRadius() ? this.getWidth() - b.getRadius() : b.getRadius());
                b.setDx(-b.getDx());
            }
            if(b.getY()>this.getHeight() - b.getRadius() || b.getY()<0 + b.getRadius()){
+               b.setY(b.getY()>this.getHeight() - b.getRadius() ? this.getHeight() - b.getRadius() : b.getRadius());
                b.setDy(-b.getDy());
            }
            if(!isStopped){
@@ -78,8 +80,10 @@ public class GravityPanel extends JPanel implements ActionListener
    public void deleteGP(int mX, int mY){
        try{
            for(GravityPointer gp : gps){
-               gps.remove(gp);
-               reset();
+               if((mX>gp.getX()-gp.getRadius() && mX<gp.getX()+gp.getRadius()) && (mY>gp.getY()-gp.getRadius() && mY<gp.getY()+gp.getRadius())){
+                   gps.remove(gp);
+                   reset();
+               }
            }
        }
        catch(Exception e){}
@@ -90,6 +94,7 @@ public class GravityPanel extends JPanel implements ActionListener
                if((mX>gp.getX()-gp.getRadius() && mX<gp.getX()+gp.getRadius()) && (mY>gp.getY()-gp.getRadius() && mY<gp.getY()+gp.getRadius())){
                    gp.setMass(gp.getMass() + 1.3e13);
                    gp.setRadius(gp.getRadius() + 5);
+                   gp.setY(gp.getY() + 5);
                    if(gp.getRadius() > 40){
                        gps.remove(gp);
                        reset();
@@ -117,6 +122,29 @@ public class GravityPanel extends JPanel implements ActionListener
            }
        }
    }
+   /*public void gpAttraction(){
+       for(GravityPointer gp1 : gps){
+           for(GravityPointer gp2 : gps){
+               if(gp1==gp2){
+                   continue;
+               }
+               double dx = gp2.getX()-gp1.getX();
+               double dy = gp2.getY()-gp1.getY();;
+               double distance = Math.sqrt(dx*dx + dy*dy);
+               double fx = 0;
+               double fy = 0;
+               double midX = dx/2;
+               double midY = dy/2;
+               double midDist = Math.sqrt(midX*midX + midY*midY);
+
+               if (distance > gp1.getRadius() + gp2.getRadius()) { // Avoid division by zero
+                   double force = (G * gp1.getMass() * gp2.getMass()) / (distance * distance);
+                   fx += force * (dx / distance);
+                   fy += force * (dy / distance);
+               }
+           }
+       }
+   }*/
    public void setMass(double mass){
        for(GravityPointer gp : gps){
            gp.setMass(mass); 
@@ -179,7 +207,7 @@ public class GravityPanel extends JPanel implements ActionListener
         int height = this.getHeight();
         int x = 30 + rand.nextInt(30 + 3*width/4);
         int y = 30 + rand.nextInt(30 + 3*height/4);
-        Ball b = new Ball(x, y, 15, System.currentTimeMillis());
+        Ball b = new Ball(x, y, 10, System.currentTimeMillis());
         if(speed.equals("low")){
             b.setDx(3.0);
         }
