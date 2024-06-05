@@ -50,12 +50,14 @@ public class GravityPanel extends JPanel implements ActionListener
    {
        super.paintComponent( g );
        attraction();
-       gpAttraction();
+       //gpAttraction();
        for(GravityPointer gp : gps){
+           System.out.println("Mass: " + gp.getMass());
            g.setColor(Color.black);
            g.fillOval((int)(gp.getX()-gp.getRadius()), (int)(gp.getY()-3*gp.getRadius()), 2*gp.getRadius(), 2*gp.getRadius());
        }
        for(Ball b : balls){
+           System.out.println("Velocity: " + b.getDx() + " y: " + b.getDy());
            g.setColor(b.getColor());
            if(b.getX()>this.getWidth() - b.getRadius() || b.getX()<b.getRadius()){
                b.setX(b.getX()>this.getWidth() - b.getRadius() ? this.getWidth() - b.getRadius() : b.getRadius());
@@ -82,7 +84,6 @@ public class GravityPanel extends JPanel implements ActionListener
            for(GravityPointer gp : gps){
                if((mX>gp.getX()-gp.getRadius() && mX<gp.getX()+gp.getRadius()) && (mY>gp.getY()-gp.getRadius() && mY<gp.getY()+gp.getRadius())){
                    gps.remove(gp);
-                   reset();
                }
            }
        }
@@ -97,7 +98,6 @@ public class GravityPanel extends JPanel implements ActionListener
                    gp.setY(gp.getY() + 5);
                    if(gp.getRadius() > 40){
                        gps.remove(gp);
-                       reset();
                    }
                }
            }
