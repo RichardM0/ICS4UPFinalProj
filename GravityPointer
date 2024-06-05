@@ -10,7 +10,7 @@ public class GravityPointer
     // instance variables - replace the example below with your own
     private double x, y;
     private int radius = 20;
-    private static double mass = 5.3e13;
+    private static double mass;
 
     /**
      * Constructor for objects of class GravityPointer
@@ -19,6 +19,7 @@ public class GravityPointer
     {
         x = 0;
         y = 0;
+        mass = 5.3e13;
     }
     public GravityPointer(double x, double y)
     {
