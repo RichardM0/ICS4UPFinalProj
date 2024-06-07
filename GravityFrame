@@ -22,11 +22,11 @@ public class GravityFrame extends JFrame implements ActionListener, ItemListener
    public static JFrame frame;
    private static GravityPanel bp;
    private static JMenuBar menuBar;
-   private static JMenu speedMenu, gravMenu, pathMenu;
-   private static JRadioButtonMenuItem low, medium, high, glow, gmedium, ghigh, linear, circular, parabolic, sine, ellipse;
+   private static JMenu speedMenu;
+   private static JRadioButtonMenuItem low, medium, high;
    private static JPanel subPanel; 
-   private static JButton start, stop, addBalls;
-   private static ButtonGroup speedGroup, gravGroup, pathGroup;
+   private static JButton start, stop, addBalls, reset;
+   private static ButtonGroup speedGroup;
    /*
    * constructor for objects of BallFrame
    * Creates entire window
@@ -44,70 +44,28 @@ public class GravityFrame extends JFrame implements ActionListener, ItemListener
         menuBar = new JMenuBar();
 
         speedMenu = new JMenu("Speed");  
-        gravMenu = new JMenu("Gravity");
-        pathMenu = new JMenu("Motion");
 
         speedGroup = new ButtonGroup();
-        gravGroup = new ButtonGroup();
-        pathGroup = new ButtonGroup();
 
         speedMenu.addSeparator();
-        gravMenu.addSeparator();
-        pathMenu.addSeparator();
         
         low = new JRadioButtonMenuItem("Low Speed");
         medium = new JRadioButtonMenuItem("Medium Speed");
         high = new JRadioButtonMenuItem("High Speed");
-
-        glow = new JRadioButtonMenuItem("Low Mass");
-        gmedium = new JRadioButtonMenuItem("Medium Mass");
-        ghigh = new JRadioButtonMenuItem("High Mass");
-
-        linear = new JRadioButtonMenuItem("Linear");
-        circular = new JRadioButtonMenuItem("Circular");
-        parabolic = new JRadioButtonMenuItem("Parabolic");
-        sine = new JRadioButtonMenuItem("Sinusoidal");
-        ellipse = new JRadioButtonMenuItem("Ellipse");
-  
+        
         low.addItemListener(this);
         medium.addItemListener(this);
         high.addItemListener(this);
-        glow.addItemListener(this);
-        gmedium.addItemListener(this);
-        ghigh.addItemListener(this);
-        linear.addItemListener(this);
-        circular.addItemListener(this);
-        parabolic.addItemListener(this);
-        sine.addItemListener(this);
-        ellipse.addItemListener(this);
-
+        
         speedGroup.add(low);
         speedGroup.add(medium);
         speedGroup.add(high);
-        gravGroup.add(glow);
-        gravGroup.add(gmedium);
-        gravGroup.add(ghigh);
-        pathGroup.add(linear);
-        pathGroup.add(circular);
-        pathGroup.add(parabolic);
-        pathGroup.add(sine);
-        pathGroup.add(ellipse);
 
         speedMenu.add(low);
         speedMenu.add(medium);
         speedMenu.add(high);
-        gravMenu.add(glow);
-        gravMenu.add(gmedium);
-        gravMenu.add(ghigh);
-        pathMenu.add(linear);
-        pathMenu.add(circular);
-        pathMenu.add(parabolic);
-        pathMenu.add(sine);
-        pathMenu.add(ellipse);
 
         menuBar.add(speedMenu);
-        menuBar.add(gravMenu);
-        menuBar.add(pathMenu);
  
         subPanel = new JPanel();
         subPanel.setBackground(Color.gray);
@@ -115,24 +73,23 @@ public class GravityFrame extends JFrame implements ActionListener, ItemListener
         start = new JButton("Start");
         stop = new JButton("Stop");
         addBalls = new JButton("Add Balls");
+        reset = new JButton("Reset Frame");
  
         stop.addActionListener(this);
         start.addActionListener(this);
         addBalls.addActionListener(this);
+        reset.addActionListener(this);
 
         subPanel.add(start);
         subPanel.add(stop);
         subPanel.add(addBalls);
+        subPanel.add(reset);
         
         frame.setJMenuBar(menuBar);
         frame.addMouseListener(new MouseAdapter() { 
           public void mousePressed(MouseEvent me) { 
             if(SwingUtilities.isLeftMouseButton(me)){
-                bp.addGP(me.getX(), me.getY());
                 bp.accumulate(me.getX(), me.getY());
-            }
-            if(SwingUtilities.isRightMouseButton(me)){
-                bp.deleteGP(me.getX(), me.getY());
             }
           } 
         }); 
@@ -140,7 +97,7 @@ public class GravityFrame extends JFrame implements ActionListener, ItemListener
         frame.getContentPane().add(subPanel, BorderLayout.SOUTH);
 
         frame.add( bp );
-        frame.setSize( 600, 600 ); 
+        frame.setSize(900, 720); 
         frame.setVisible( true );
    }
    /*
@@ -168,6 +125,9 @@ public class GravityFrame extends JFrame implements ActionListener, ItemListener
         else if(e.getSource() == addBalls){
             bp.addBall();
         }
+        else if(e.getSource() == reset){
+            bp.reset();
+        }
    }
    /*
     * itemStateChanged method
@@ -185,18 +145,6 @@ public class GravityFrame extends JFrame implements ActionListener, ItemListener
         }
         else if (e.getSource() == high){
             bp.setSpeed(9.0, 0, 512, "high");
-        }
-        else if (e.getSource() == glow){
-            bp.setMass(5.3e13);
-            bp.reset();
-        }
-        else if (e.getSource() == gmedium){
-            bp.setMass(1.3e14);
-            bp.reset();
-        }
-        else if (e.getSource() == ghigh){
-            bp.setMass(1.8e14);
-            bp.reset();
         }
    }
 }
