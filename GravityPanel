@@ -15,7 +15,7 @@ public class GravityPanel extends JPanel implements ActionListener
    private static final double G = 6.67430e-11;
    protected Timer timer;
    private ArrayList<Ball> balls = new ArrayList<Ball>();
-   private ArrayList<GravityPointer> gps = new ArrayList<GravityPointer>();
+   private GravityPointer gp = new GravityPointer(this.getWidth(), this.getHeight());
    private double rotateSpeed = Math.PI / 2048;
    private boolean isStopped = true;
    public static String speed = "low";
@@ -31,6 +31,7 @@ public class GravityPanel extends JPanel implements ActionListener
       balls.add(new Ball(200, 200, 10,  System.currentTimeMillis()));
       timer = new Timer(delay, this);
       timer.start();
+
    }
    /*
     * actionPerformed method
@@ -50,14 +51,12 @@ public class GravityPanel extends JPanel implements ActionListener
    {
        super.paintComponent( g );
        attraction();
-       //gpAttraction();
-       for(GravityPointer gp : gps){
-           System.out.println("Mass: " + gp.getMass());
-           g.setColor(Color.black);
-           g.fillOval((int)(gp.getX()-gp.getRadius()), (int)(gp.getY()-3*gp.getRadius()), 2*gp.getRadius(), 2*gp.getRadius());
-       }
+       g.setColor(Color.black);
+       g.fillOval((int)(gp.getX()-gp.getRadius()), (int)(gp.getY()-3*gp.getRadius()), 2*gp.getRadius(), 2*gp.getRadius());
+       gp.move();
+       gpTurn();
+       boundQuadrant();
        for(Ball b : balls){
-           System.out.println("Velocity: " + b.getDx() + " y: " + b.getDy());
            g.setColor(b.getColor());
            if(b.getX()>this.getWidth() - b.getRadius() || b.getX()<b.getRadius()){
                b.setX(b.getX()>this.getWidth() - b.getRadius() ? this.getWidth() - b.getRadius() : b.getRadius());
@@ -70,84 +69,47 @@ public class GravityPanel extends JPanel implements ActionListener
            if(!isStopped){
                 b.move();
            }
+           else if(isStopped){
+               b.setDx(1);
+               b.setDy(1);
+           }
            g.fillOval((int)(b.getX() - b.getRadius()), (int)(b.getY() - b.getRadius()), b.getRadius()*2, b.getRadius()*2);
        }
    }
    public void reset(){
+       balls.clear();
+       addBall();
+   }
+   public void ballReset(){
        for(Ball b : balls){
            b.setDx(3.0);
            b.setDy(3.0);
        }
    }
-   public void deleteGP(int mX, int mY){
-       try{
-           for(GravityPointer gp : gps){
-               if((mX>gp.getX()-gp.getRadius() && mX<gp.getX()+gp.getRadius()) && (mY>gp.getY()-gp.getRadius() && mY<gp.getY()+gp.getRadius())){
-                   gps.remove(gp);
-               }
-           }
-       }
-       catch(Exception e){}
-   }
    public void accumulate(int mX, int mY){
-       try{
-           for(GravityPointer gp : gps){
-               if((mX>gp.getX()-gp.getRadius() && mX<gp.getX()+gp.getRadius()) && (mY>gp.getY()-gp.getRadius() && mY<gp.getY()+gp.getRadius())){
-                   gp.setMass(gp.getMass() + 1.3e13);
-                   gp.setRadius(gp.getRadius() + 5);
-                   gp.setY(gp.getY() + 5);
-                   if(gp.getRadius() > 40){
-                       gps.remove(gp);
-                   }
-               }
+       if((mX>gp.getX()-gp.getRadius() && mX<gp.getX()+gp.getRadius()) && (mY>gp.getY()-gp.getRadius() && mY<gp.getY()+gp.getRadius())){
+           if(gp.getRadius() > 50){
+               return;
            }
+           gp.setMass(gp.getMass() + 1e14);
+           gp.setRadius(gp.getRadius() + 5);
+           gp.setY(gp.getY() + 5);
        }
-       catch(Exception e){}
    }
    public void attraction(){
        for(Ball b : balls){
-           for(GravityPointer gp : gps){
-               double dx = gp.getX()-b.getX();
-               double dy = gp.getY()-b.getY();;
-               double distance = Math.sqrt(dx*dx + dy*dy);
-               double fx = 0;
-               double fy = 0;
+           double dx = gp.getX()-b.getX();
+           double dy = gp.getY()-b.getY();;
+           double distance = Math.sqrt(dx*dx + dy*dy);
+           double fx = 0;
+           double fy = 0;
 
-               if (distance > b.getRadius() + gp.getRadius()) { // Avoid division by zero
-                   double force = (G * b.getMass() * gp.getMass()) / (distance * distance);
-                   fx += force * (dx / distance);
-                   fy += force * (dy / distance);
-               }
-               b.updateVel(fx, fy);
+           if (distance > b.getRadius() + gp.getRadius()) { 
+               double force = (G * b.getMass() * gp.getMass()) / (distance * distance);
+               fx += force * (dx / distance);
+               fy += force * (dy / distance);
            }
-       }
-   }
-   /*public void gpAttraction(){
-       for(GravityPointer gp1 : gps){
-           for(GravityPointer gp2 : gps){
-               if(gp1==gp2){
-                   continue;
-               }
-               double dx = gp2.getX()-gp1.getX();
-               double dy = gp2.getY()-gp1.getY();;
-               double distance = Math.sqrt(dx*dx + dy*dy);
-               double fx = 0;
-               double fy = 0;
-               double midX = dx/2;
-               double midY = dy/2;
-               double midDist = Math.sqrt(midX*midX + midY*midY);
-
-               if (distance > gp1.getRadius() + gp2.getRadius()) { // Avoid division by zero
-                   double force = (G * gp1.getMass() * gp2.getMass()) / (distance * distance);
-                   fx += force * (dx / distance);
-                   fy += force * (dy / distance);
-               }
-           }
-       }
-   }*/
-   public void setMass(double mass){
-       for(GravityPointer gp : gps){
-           gp.setMass(mass); 
+           b.updateVel(fx, fy);
        }
    }
    /*
@@ -185,15 +147,6 @@ public class GravityPanel extends JPanel implements ActionListener
    public void setStart(){
        isStopped = false;
    }
-   public void addGP(int x, int y){
-       for(GravityPointer gp : gps){
-           if((x>gp.getX()-gp.getRadius() && x<gp.getX()+gp.getRadius()) && (y>gp.getY()-gp.getRadius() && y<gp.getY()+gp.getRadius())){
-               return;
-           }
-       }
-       GravityPointer gpNew = new GravityPointer(x,y);
-       gps.add(gpNew);
-   }
    /*
     * addBall method
     * Adds ball to the BallPanel
@@ -217,10 +170,7 @@ public class GravityPanel extends JPanel implements ActionListener
         else if(speed.equals("high")){
             b.setDx(9.0);
         }
-        float red = rand.nextFloat();
-        float green = rand.nextFloat();
-        float blue = rand.nextFloat();
-        b.setColor(new Color(red,green,blue));
+        b.setColor(Color.red);
         balls.add(b);
    }
    /*
@@ -232,6 +182,51 @@ public class GravityPanel extends JPanel implements ActionListener
         for(Ball b : balls){
             b.setColor(c);
         }
+   }
+   public void gpTurn(){
+        int width = this.getWidth();
+        int height = this.getHeight();
+        if(gp.getMoving() == 1 && gp.getX() >= 4*width/5){
+            gp.setMoving(2);
+        }
+        else if(gp.getMoving() == 2 && gp.getY() >= 4*height/5){
+            gp.setMoving(3);
+        }
+        else if(gp.getMoving() == 3 && gp.getX() <= width/5){
+            gp.setMoving(4);
+        }
+        else if(gp.getMoving() == 4 && gp.getY() < width/5){
+            gp.setMoving(1);
+        }
+    }
+   public void gpQuadrant(){
+        int width = this.getWidth();
+        int height = this.getHeight();
+        if((gp.getX()>0 && gp.getX()<width/2) && (gp.getY()>0 && gp.getY()<height/2)){
+            gp.setQuadrant(1);
+        }
+        else if((gp.getX()>width/2 && gp.getX()<width) && (gp.getY()>0 && gp.getY()<height/2)){
+            gp.setQuadrant(2);
+        }
+        else if((gp.getX()>0 && gp.getX()<width/2) && (gp.getY()>height/2 && gp.getY()<height)){
+            gp.setQuadrant(3);
+        }
+        else if((gp.getX()>width/2 && gp.getX()<width) && (gp.getY()>height/2 && gp.getY()<height)){
+            gp.setQuadrant(4);
+        }
+   }
+   public void boundQuadrant()
+   {
+       int width = this.getWidth();
+       int height = this.getHeight();
+       for(Ball b : balls){
+           if(b.getX() > gp.getX() + width/4 - b.getRadius() || b.getX() < Math.max(b.getRadius(), gp.getX() - width/4 + b.getRadius())){
+                b.setX(b.getX() > gp.getX() + width/4 - b.getRadius() ? gp.getX() + width/4 - b.getRadius() : Math.max(b.getRadius(), gp.getX() - width/4 + b.getRadius()));
+           }
+           if(b.getY() > gp.getY() + height/4 - b.getRadius() || b.getY() < Math.max(b.getRadius(), gp.getY() - height/4 + b.getRadius())){
+                b.setY(b.getY() > gp.getY() + height/4 - b.getRadius() ? gp.getY() + height/4 - b.getRadius() : Math.max(b.getRadius(), gp.getY() - height/4 + b.getRadius()));
+           }
+       }
    }
    /*
     * setMovement and getMovement method
