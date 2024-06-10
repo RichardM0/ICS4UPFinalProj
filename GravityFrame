@@ -16,7 +16,7 @@ import java.awt.event.MouseEvent;
 public class GravityFrame extends JFrame implements ActionListener, ItemListener
 {
    /*
-    * Static variables for class BallFrame
+    * Static variables for class OrbiterFrame
     * Each individual Java Swing element
     */
    public static JFrame frame;
@@ -25,19 +25,19 @@ public class GravityFrame extends JFrame implements ActionListener, ItemListener
    private static JMenu speedMenu;
    private static JRadioButtonMenuItem low, medium, high;
    private static JPanel subPanel; 
-   private static JButton start, stop, addBalls, reset;
+   private static JButton start, stop, addOrbiters, addMeteors, reset;
    private static ButtonGroup speedGroup;
    /*
-   * constructor for objects of BallFrame
+   * constructor for objects of OrbiterFrame
    * Creates entire window
    * Create menu with speed, gravity, and motion options
-   * Add the BallPanel with the actual moving balls
-   * Have a subpanel with buttons Start Stop and Add Balls to change balls
+   * Add the OrbiterPanel with the actual moving orbiters
+   * Have a subpanel with buttons Start Stop and Add Orbiters to change orbiters
    * Add frame to the window
    */
    public GravityFrame()
    {
-        frame = new JFrame( "Bouncing Ball" );
+        frame = new JFrame( "Gravity" );
         frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
         
         bp = new GravityPanel(); 
@@ -72,17 +72,20 @@ public class GravityFrame extends JFrame implements ActionListener, ItemListener
 
         start = new JButton("Start");
         stop = new JButton("Stop");
-        addBalls = new JButton("Add Balls");
+        addOrbiters = new JButton("Add Orbiters");
+        addMeteors = new JButton("Add Meteors");
         reset = new JButton("Reset Frame");
  
         stop.addActionListener(this);
         start.addActionListener(this);
-        addBalls.addActionListener(this);
+        addOrbiters.addActionListener(this);
+        addMeteors.addActionListener(this);
         reset.addActionListener(this);
 
         subPanel.add(start);
         subPanel.add(stop);
-        subPanel.add(addBalls);
+        subPanel.add(addOrbiters);
+        subPanel.add(addMeteors);
         subPanel.add(reset);
         
         frame.setJMenuBar(menuBar);
@@ -111,9 +114,9 @@ public class GravityFrame extends JFrame implements ActionListener, ItemListener
    /*
     * actionPerformed method
     * Listens for which button was pressed:
-    * Stop button stops the ballPanel
-    * Start resumes the ballPanel action
-    * addBalls button adds ball to the ballPanel
+    * Stop button stops the orbiterPanel
+    * Start resumes the orbiterPanel action
+    * addOrbiters button adds orbiter to the orbiterPanel
     */
    public void actionPerformed(ActionEvent e) {
         if (e.getSource() == stop){
@@ -122,8 +125,11 @@ public class GravityFrame extends JFrame implements ActionListener, ItemListener
         else if (e.getSource() == start){
             bp.setStart();
         }
-        else if(e.getSource() == addBalls){
-            bp.addBall();
+        else if(e.getSource() == addOrbiters){
+            bp.addOrbiter();
+        }
+        else if(e.getSource() == addMeteors){
+            bp.addMeteor();
         }
         else if(e.getSource() == reset){
             bp.reset();
