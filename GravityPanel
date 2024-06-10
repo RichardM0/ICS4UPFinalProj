@@ -25,6 +25,7 @@ public class GravityPanel extends JPanel implements ActionListener
    private int orbitDist = 2*gp.getRadius()+10;
    private double angle = Math.PI/256;
    private boolean isStopped = true;
+   private boolean dragged = false;
    public static String speed = "low";
    private String movement = "linear";
    private ImageIcon gifIcon;
@@ -72,7 +73,7 @@ public class GravityPanel extends JPanel implements ActionListener
                b.setY(b.getY()>this.getHeight() - b.getRadius() ? this.getHeight() - b.getRadius() : b.getRadius());
                b.setDy(-b.getDy());
            }
-           if(!isStopped){
+           if(!isStopped && !dragged){
                b.move((int)gp.getX()+gp.getRadius() - 10, (int)gp.getY()+gp.getRadius() - 10, orbitDist);
                //b.setX(gp.getX()-b.getDistX());
                //b.setY(gp.getY()-b.getDistY());
@@ -93,11 +94,22 @@ public class GravityPanel extends JPanel implements ActionListener
            gpQuadrant();
        }
    }
+   public void dragGP(int mX, int mY){
+       int lowY = (int)gp.getY();
+       int upY = (int)gp.getY()+2*gp.getRadius();
+       int dude = mY-2*gp.getRadius();
+       System.out.println(lowY + ", " + dude + ", " + upY);
+       if((mX>gp.getX() && mX<gp.getX()+2*gp.getRadius()) && (mY-2*gp.getRadius()>gp.getY() && mY-2*gp.getRadius()<gp.getY()+2*gp.getRadius())){
+           gp.setX(mX-gp.getRadius());
+           gp.setY(mY-2*gp.getRadius());
+       }
+   }
    public void reset(){
        orbiters.clear();
        meteors.clear();
        gp.setMass(1e14);
        gp.setRadius(35);
+       orbitDist = 90;
    }
    public void orbiterReset(){
        for(Orbiter b : orbiters){
@@ -107,16 +119,6 @@ public class GravityPanel extends JPanel implements ActionListener
        for(Meteor b : meteors){
            b.setDx(3.0);
            b.setDy(3.0);
-       }
-   }
-   public void accumulate(int mX, int mY){
-       if((mX>gp.getX()-gp.getRadius() && mX<gp.getX()+gp.getRadius()) && (mY>gp.getY()-gp.getRadius() && mY<gp.getY()+gp.getRadius())){
-           if(gp.getRadius() > 50){
-               return;
-           }
-           gp.setMass(gp.getMass() + 1e14);
-           gp.setRadius(gp.getRadius() + 5);
-           gp.setY(gp.getY() + 5);
        }
    }
    public void attraction(){
@@ -142,6 +144,9 @@ public class GravityPanel extends JPanel implements ActionListener
                double mY = b.getY();
                if((mX>gp.getX() && mX<gp.getX()+2*gp.getRadius()) && (mY>gp.getY() && mY<gp.getY()+2*gp.getRadius())){
                    meteors.remove(b);
+                   if(gp.getRadius()>60 || gp.getMass() > 5e14){
+                       continue;
+                   }
                    gp.setRadius(gp.getRadius() + 1);
                    gp.setMass(gp.getMass() + 1e13);
                    orbitDist += 1;
