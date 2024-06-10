@@ -1,4 +1,5 @@
 
+
 /**
  * Write a description of class GravityPointer here.
  *
@@ -9,19 +10,19 @@ public class GravityPointer
 {
     // instance variables - replace the example below with your own
     private double x, y, dX, dY;
-    private int radius = 20;
+    private int radius = 35;
     private double mass;
     private int quadrant = 0;
     private int moving = 1;
+    private double angle = 0;
 
-    public GravityPointer(double x, double y)
+    public GravityPointer(int x, int y)
     {
-        System.out.println(x + ", " + y);
         dX = 1.0;
         dY = 0;
+        this.x = x;
+        this.y = y;
         mass = 1e14;
-        this.x = 120;
-        this.y = 120;
     }
     public void setX(double newX){
         x = newX;
@@ -86,6 +87,14 @@ public class GravityPointer
             dX = 0;
             dY = -1;
             y+=dY;
+        }
+    }
+    public void ellipsoidMotion(int w, int h, boolean stopped){
+        int r = Math.min(w - radius, h - radius);
+        x = Double.valueOf(w/2) + (r/2)*Math.cos(angle);
+        y = Double.valueOf(h/2) + (r/4)*Math.sin(angle);
+        if(!stopped){
+            angle += Math.PI/256;
         }
     }
     public int getMoving(){
