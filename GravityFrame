@@ -97,7 +97,7 @@ public class GravityFrame extends JFrame implements ActionListener, ItemListener
         }); 
 
         frame.getContentPane().add(subPanel, BorderLayout.SOUTH);
-
+        bp.setBackground(Color.darkGray);
         frame.add( bp );
         frame.setSize(900, 720); 
         frame.setVisible( true );
