@@ -20,7 +20,7 @@ public class GravityFrame extends JFrame implements ActionListener
    public static JFrame frame;
    private static GravityPanel bp;
    private static JPanel subPanel; 
-   private static JButton start, stop, addOrbiters, addMeteors, reset;
+   private static JButton addMeteors, reset;
    /*
    * constructor for objects of OrbiterFrame
    * Creates entire window
@@ -37,21 +37,11 @@ public class GravityFrame extends JFrame implements ActionListener
         subPanel = new JPanel();
         subPanel.setBackground(Color.gray);
     
-        start = new JButton("Start");
-        stop = new JButton("Stop");
-        addOrbiters = new JButton("Add Orbiters");
         addMeteors = new JButton("Add Meteors");
         reset = new JButton("Reset Frame");
- 
-        stop.addActionListener(this);
-        start.addActionListener(this);
-        addOrbiters.addActionListener(this);
+        
         addMeteors.addActionListener(this);
         reset.addActionListener(this);
-
-        subPanel.add(start);
-        subPanel.add(stop);
-        subPanel.add(addOrbiters);
         subPanel.add(addMeteors);
         subPanel.add(reset);
         frame.addMouseMotionListener(new MouseAdapter() {  
@@ -84,16 +74,7 @@ public class GravityFrame extends JFrame implements ActionListener
     * addOrbiters button adds orbiter to the orbiterPanel
     */
    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == stop){
-            bp.setStopped();
-        }
-        else if (e.getSource() == start){
-            bp.setStart();
-        }
-        else if(e.getSource() == addOrbiters){
-            bp.addOrbiter();
-        }
-        else if(e.getSource() == addMeteors){
+        if(e.getSource() == addMeteors){
             bp.addMeteor();
         }
         else if(e.getSource() == reset){
