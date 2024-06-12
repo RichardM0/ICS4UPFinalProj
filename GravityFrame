@@ -6,15 +6,12 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JButton;
-import javax.swing.ButtonGroup;
 import javax.swing.SwingUtilities;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class GravityFrame extends JFrame implements ActionListener, ItemListener
+public class GravityFrame extends JFrame implements ActionListener
 {
    /*
     * Static variables for class OrbiterFrame
@@ -22,12 +19,8 @@ public class GravityFrame extends JFrame implements ActionListener, ItemListener
     */
    public static JFrame frame;
    private static GravityPanel bp;
-   private static JMenuBar menuBar;
-   private static JMenu speedMenu;
-   private static JRadioButtonMenuItem low, medium, high;
    private static JPanel subPanel; 
    private static JButton start, stop, addOrbiters, addMeteors, reset;
-   private static ButtonGroup speedGroup;
    /*
    * constructor for objects of OrbiterFrame
    * Creates entire window
@@ -39,38 +32,11 @@ public class GravityFrame extends JFrame implements ActionListener, ItemListener
    public GravityFrame()
    {
         frame = new JFrame( "Gravity" );
-        frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-        
-        bp = new GravityPanel(); 
-        menuBar = new JMenuBar();
-
-        speedMenu = new JMenu("Speed");  
-
-        speedGroup = new ButtonGroup();
-
-        speedMenu.addSeparator();
-        
-        low = new JRadioButtonMenuItem("Low Speed");
-        medium = new JRadioButtonMenuItem("Medium Speed");
-        high = new JRadioButtonMenuItem("High Speed");
-        
-        low.addItemListener(this);
-        medium.addItemListener(this);
-        high.addItemListener(this);
-        
-        speedGroup.add(low);
-        speedGroup.add(medium);
-        speedGroup.add(high);
-
-        speedMenu.add(low);
-        speedMenu.add(medium);
-        speedMenu.add(high);
-
-        menuBar.add(speedMenu);
- 
+        frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );    
+        bp = new GravityPanel();
         subPanel = new JPanel();
         subPanel.setBackground(Color.gray);
-
+    
         start = new JButton("Start");
         stop = new JButton("Stop");
         addOrbiters = new JButton("Add Orbiters");
@@ -88,8 +54,6 @@ public class GravityFrame extends JFrame implements ActionListener, ItemListener
         subPanel.add(addOrbiters);
         subPanel.add(addMeteors);
         subPanel.add(reset);
-        
-        frame.setJMenuBar(menuBar);
         frame.addMouseMotionListener(new MouseAdapter() {  
           public void mouseDragged(MouseEvent me){
               bp.dragGP(me.getX(), me.getY());
@@ -109,6 +73,8 @@ public class GravityFrame extends JFrame implements ActionListener, ItemListener
    public static void main( String args[] )
    {
         GravityFrame run = new GravityFrame();
+        int offset = subPanel.getHeight();
+        bp.setOffset(offset);
    }
    /*
     * actionPerformed method
@@ -132,24 +98,6 @@ public class GravityFrame extends JFrame implements ActionListener, ItemListener
         }
         else if(e.getSource() == reset){
             bp.reset();
-        }
-   }
-   /*
-    * itemStateChanged method
-    * Checks which menu item was last changed or chosen
-    * Changes speed to low, medium, or high
-    * Changes grav to blue, red, or yellow
-    * Changes motion to linear, circular, parabolic, sinusoidal, or ellipse.
-    */
-   public void itemStateChanged(ItemEvent e){
-        if (e.getSource() == low){
-            bp.setSpeed(3.0, 0, 2048,  "low");
-        }
-        else if (e.getSource() == medium){
-            bp.setSpeed(6.0, 0, 1024, "medium");
-        }
-        else if (e.getSource() == high){
-            bp.setSpeed(9.0, 0, 512, "high");
         }
    }
 }
