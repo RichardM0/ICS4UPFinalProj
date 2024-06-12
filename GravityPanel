@@ -32,7 +32,6 @@ public class GravityPanel extends JPanel implements ActionListener
    private int count = 0;
    private int yOffset = 0;
    private int gradRadius = 3*gp.getRadius()/4;
-   private boolean dragged = false;
    public static String speed = "low";
    private String movement = "linear";
    private ImageIcon gifIcon;
@@ -77,6 +76,13 @@ public class GravityPanel extends JPanel implements ActionListener
        g2d.fill(new Ellipse2D.Double(gp.getX(), gp.getY(), 2*gp.getRadius(), 2*gp.getRadius()));
        
        meteorCollision();
+       for(Meteor b : meteors){
+           if(!isStopped){
+               b.move();
+           }
+           g2d.setColor(new Color(102, 51, 0));
+           g2d.fill(new Ellipse2D.Double((int)b.getX(), (int)b.getY(), b.getRadius()*2, b.getRadius()*2));
+       }
        for(Orbiter b : orbiters){
            g.setColor(b.getColor());
            if(b.getX()>this.getWidth() - b.getRadius() || b.getX()<b.getRadius()){
@@ -87,25 +93,15 @@ public class GravityPanel extends JPanel implements ActionListener
                b.setY(b.getY()>this.getHeight() - b.getRadius() ? this.getHeight() - b.getRadius() : b.getRadius());
                b.setDy(-b.getDy());
            }
-           if(!isStopped && !dragged){
+           if(!isStopped){
                b.move((int)gp.getX()+gp.getRadius() - 10, (int)gp.getY()+gp.getRadius() - 10, orbitDist);
                //b.setX(gp.getX()-b.getDistX());
                //b.setY(gp.getY()-b.getDistY());
            }
            g.fillOval((int)b.getX(), (int)b.getY(), b.getRadius()*2, b.getRadius()*2);
        }
-       for(Meteor b : meteors){
-           if(!isStopped){
-               b.move();
-           }
-           g2d.setColor(new Color(102, 51, 0));
-           g2d.fill(new Ellipse2D.Double((int)b.getX(), (int)b.getY(), b.getRadius()*2, b.getRadius()*2));
-       }
        if(!isStopped){
-           gp.move();
            attraction();
-           gpTurn();
-           gpQuadrant();
        }
        g2d.dispose();
        if(count%7==0){
@@ -123,23 +119,20 @@ public class GravityPanel extends JPanel implements ActionListener
        yOffset = y;
    }
    public void dragGP(int mX, int mY){
+       System.out.println(yOffset);
        int lowY = (int)gp.getY();
        int upY = (int)gp.getY()+2*gp.getRadius();
-       int dude = mY;
+       int dude = mY-yOffset;
        int lowX = (int)gp.getX();
        int upX = (int)gp.getX()+2*gp.getRadius();
        int dude2 = mX;
        int cx = (int)gp.getX() + gp.getRadius();
        int cy = (int)gp.getY() + gp.getRadius();
-       System.out.println(lowX + ", " + dude2 + ", " + upX + " || " + lowY + ", " + dude + ", " + upY);
-       if((mX>gp.getX() && mX<gp.getX()+2*gp.getRadius()) && (mY>gp.getY() && mY<gp.getY()+2*gp.getRadius())){
-           //gp.setX(mX+gp.getRadius());
-           //gp.setY(mY+gp.getRadius());
-           ;
-           /*
-            * add if statements handling position
-            * check mX
-            */
+       System.out.println(mX + ", " + cx + " || " + mY + ", " + cy);
+       //System.out.println(lowX + ", " + dude2 + ", " + upX + " || " + lowY + ", " + dude + ", " + upY);
+       if((mX>gp.getX() && mX<gp.getX()+2*gp.getRadius()) && (mY-yOffset>gp.getY() && mY-yOffset<gp.getY()+2*gp.getRadius())){
+           gp.setX(mX-gp.getRadius());
+           gp.setY(mY-gp.getRadius() - yOffset);
        }
    }
    public void reset(){
@@ -148,17 +141,6 @@ public class GravityPanel extends JPanel implements ActionListener
        gp.setMass(1e14);
        gp.setRadius(35);
        orbitDist = 90;
-       
-   }
-   public void orbiterReset(){
-       for(Orbiter b : orbiters){
-           b.setDx(3.0);
-           b.setDy(3.0);
-       }
-       for(Meteor b : meteors){
-           b.setDx(3.0);
-           b.setDy(3.0);
-       }
    }
    public void attraction(){
        for(Meteor b : meteors){
@@ -181,7 +163,8 @@ public class GravityPanel extends JPanel implements ActionListener
            for(Meteor b : meteors){
                double mX = b.getX();
                double mY = b.getY();
-               if((mX>gp.getX() && mX<gp.getX()+2*gp.getRadius()) && (mY>gp.getY() && mY<gp.getY()+2*gp.getRadius())){
+               int r = b.getRadius();
+               if((mX+r>gp.getX() && mX+r<gp.getX()+2*gp.getRadius()) && (mY+r>gp.getY() && mY+r<gp.getY()+2*gp.getRadius())){
                    meteors.remove(b);
                    if(gp.getRadius()>60 || gp.getMass() > 5e14){
                        continue;
@@ -192,29 +175,6 @@ public class GravityPanel extends JPanel implements ActionListener
                }
            }
        }catch(Exception e){;}
-   }
-   /*
-    * setSpeed method
-    * Adjusts speed to low, medium, or high
-    * Scales dX, dY, circular/sinusoidal curving speed z
-    * Keeps track of current speed selected using String s
-    */
-   public void setSpeed(double x, double y, int z, String s){
-       speed = s;
-       for(Orbiter b : orbiters){
-           if(b.getDx()<0){
-               b.setDx(-x);
-           }
-           else if(b.getDx()>0){
-               b.setDx(x);
-           }
-           if(b.getDy()<0){
-               b.setDy(-y);
-           }
-           else if(b.getDy()>0){
-               b.setDy(y);
-           }
-       }
    }
    /*
     * setStopped method and setStart method
@@ -243,14 +203,7 @@ public class GravityPanel extends JPanel implements ActionListener
        Meteor m = new Meteor(x,y,20);
        meteors.add(m);
    }
-   public boolean inOrbiter(int x, int y){
-       for(Orbiter b: orbiters){
-           if((x>b.getX() && x<b.getX()+2*b.getRadius()) && (y>b.getY() && y<b.getY()+2*b.getRadius())){
-               return true;
-           }
-       }
-       return false;
-   }
+
    /*
     * addOrbiter method
     * Adds orbiter to the OrbiterPanel
@@ -260,20 +213,7 @@ public class GravityPanel extends JPanel implements ActionListener
     */
    public void addOrbiter(){
         Random rand = new Random();
-        /*int width = this.getWidth();
-        int height = this.getHeight();
-        int lowX = (int)gp.getX() - 10 - rand.nextInt(60);
-        int upperX = (int)gp.getX() - 10 + rand.nextInt(100);
-        int lowY = (int)gp.getY() - 10 - rand.nextInt(60);
-        int upperY = (int)gp.getY() - 10 + rand.nextInt(10);
-        int x = rand.nextBoolean() ? lowX : upperX;
-        int y = rand.nextBoolean() ? lowY : upperY;
-        
-        while(inOrbiter(x,y)){
-            x = rand.nextBoolean() ? lowX : upperX;
-            y = rand.nextBoolean() ? lowY : upperY;
-        }*/
-        if(orbiters.size() > 16 || isStopped){
+        if(orbiters.size() >= 16 || isStopped){
             return;
         }
         int x = 0;
@@ -291,16 +231,6 @@ public class GravityPanel extends JPanel implements ActionListener
         b.setColor(Color.red);
         orbiters.add(b);
    }
-   /*
-    * setColor method
-    * Changes color of every orbiter
-    * Go through every orbiter in orbiters arrayList to change color
-    */
-   public void setColor(Color c){
-        for(Orbiter b : orbiters){
-            b.setColor(c);
-        }
-   }
    public void gpTurn(){
         int width = this.getWidth();
         int height = this.getHeight();
@@ -317,34 +247,4 @@ public class GravityPanel extends JPanel implements ActionListener
             gp.setMoving(1);
         }
    }
-   public void gpQuadrant(){
-        int width = this.getWidth();
-        int height = this.getHeight();
-        if((gp.getX()>0 && gp.getX()<width/2) && (gp.getY()>0 && gp.getY()<height/2)){
-            gp.setQuadrant(1);
-        }
-        else if((gp.getX()>width/2 && gp.getX()<width) && (gp.getY()>0 && gp.getY()<height/2)){
-            gp.setQuadrant(2);
-        }
-        else if((gp.getX()>0 && gp.getX()<width/2) && (gp.getY()>height/2 && gp.getY()<height)){
-            gp.setQuadrant(3);
-        }
-        else if((gp.getX()>width/2 && gp.getX()<width) && (gp.getY()>height/2 && gp.getY()<height)){
-            gp.setQuadrant(4);
-        }
-   }
-   public void boundQuadrant()
-   {
-       int width = this.getWidth();
-       int height = this.getHeight();
-       for(Orbiter b : orbiters){
-           if(b.getX() > gp.getX() + width/4 - b.getRadius() || b.getX() < Math.max(b.getRadius(), gp.getX() - width/4 + b.getRadius())){
-                b.setX(b.getX() > gp.getX() + width/4 - b.getRadius() ? gp.getX() + width/4 - b.getRadius() : Math.max(b.getRadius(), gp.getX() - width/4 + b.getRadius()));
-           }
-           if(b.getY() > gp.getY() + height/4 - b.getRadius() || b.getY() < Math.max(b.getRadius(), gp.getY() - height/4 + b.getRadius())){
-                b.setY(b.getY() > gp.getY() + height/4 - b.getRadius() ? gp.getY() + height/4 - b.getRadius() : Math.max(b.getRadius(), gp.getY() - height/4 + b.getRadius()));
-           }
-       }
-   }
-   
 }
