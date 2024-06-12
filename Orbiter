@@ -57,9 +57,6 @@ public class Orbiter
     public double getMass(){
         return mass;
     }
-    public long getTime(){
-        return System.currentTimeMillis() - startTime;
-    }
     public void setX(double a){
         x = a;
     }
